@@ -1,0 +1,41 @@
+management:
+   endpoint:
+      gateway:
+         enabled: true
+   endpoints:
+      web:
+         exposure:
+            include: gateway
+#http://localhost:8091/actuator/gateway/routes
+spring:
+  cloud:
+    gateway:
+      routes:
+      - id: order-service
+        uri: lb://ORDER-SERVICE
+        predicates:
+        - Path=/api/v1/customerOrder/**
+        filters:
+        - name: Hystrix
+          args:
+            name: fallbackCommand
+            fallbackUri: forward:/order-fallback
+      - id: account-service
+        uri: lb://ACCOUNT-SERVICE
+        predicates:
+        - Path=/api/v1/account/**
+
+        filters:
+        - name: Hystrix
+          args:
+            name: fallbackCommand
+            fallbackUri: forward:/account-fallback 
+      - id: payment-service
+        uri: lb://PAYMENT-SERVICE
+        predicates:
+        - Path=/api/v1/payment/**
+        filters:
+        - name: Hystrix
+          args:
+            name: fallbackCommand
+            fallbackUri: forward:/payment-fallback
